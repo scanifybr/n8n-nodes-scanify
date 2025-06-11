@@ -1,48 +1,140 @@
-![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# n8n-nodes-scanify
 
-# n8n-nodes-starter
+Este é um node da comunidade n8n que permite integrar a API do Scanify diretamente nos seus fluxos de automação.
 
-This repo contains example nodes to help you get started building your own custom integrations for [n8n](https://n8n.io). It includes the node linter and other dependencies.
+O **Scanify** é uma API brasileira de OCR inteligente que extrai, valida e estrutura dados de documentos como boletos, notas fiscais, contratos e outros arquivos em PDF, JPG ou PNG. Tudo pronto para automações, sistemas e IA.
 
-To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
+[n8n](https://n8n.io/) é uma plataforma de automação open source com [licença fair-code](https://docs.n8n.io/reference/license/).
 
-If you would like your node to be available on n8n cloud you can also [submit your node for verification](https://docs.n8n.io/integrations/creating-nodes/deploy/submit-community-nodes/).
+[Instalação](#instalação)  
+[Operações](#operações)  
+[Credenciais](#credenciais)  
+[Compatibilidade](#compatibilidade)  
+[Como usar](#como-usar)  
+[Recursos](#recursos)  
+[Histórico de versões](#histórico-de-versões)  
 
-## Prerequisites
+---
 
-You need the following installed on your development machine:
+## Instalação
 
-* [git](https://git-scm.com/downloads)
-* Node.js and npm. Minimum version Node 20. You can find instructions on how to install both using nvm (Node Version Manager) for Linux, Mac, and WSL [here](https://github.com/nvm-sh/nvm). For Windows users, refer to Microsoft's guide to [Install NodeJS on Windows](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows).
-* Install n8n with:
-  ```
-  npm install n8n -g
-  ```
-* Recommended: follow n8n's guide to [set up your development environment](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/).
+Siga o [guia de instalação oficial](https://docs.n8n.io/integrations/community-nodes/installation/) para nodes da comunidade.
 
-## Using this starter
+Para desenvolvimento local, você também pode usar:
 
-These are the basic steps for working with the starter. For detailed guidance on creating and publishing nodes, refer to the [documentation](https://docs.n8n.io/integrations/creating-nodes/).
+```bash
+npm install
+npm run build
+npm link
+```
 
-1. [Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template repository.
-2. Clone your new repo:
-   ```
-   git clone https://github.com/<your organization>/<your-repo-name>.git
-   ```
-3. Run `npm i` to install dependencies.
-4. Open the project in your editor.
-5. Browse the examples in `/nodes` and `/credentials`. Modify the examples, or replace them with your own nodes.
-6. Update the `package.json` to match your details.
-7. Run `npm run lint` to check for errors or `npm run lintfix` to automatically fix errors when possible.
-8. Test your node locally. Refer to [Run your node locally](https://docs.n8n.io/integrations/creating-nodes/test/run-node-locally/) for guidance.
-9. Replace this README with documentation for your node. Use the [README_TEMPLATE](README_TEMPLATE.md) to get started.
-10. Update the LICENSE file to use your details.
-11. [Publish](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) your package to npm.
+E no seu projeto principal do n8n:
 
-## More information
+```bash
+npm link n8n-nodes-scanify
+```
 
-Refer to our [documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/) for detailed information on building your own nodes.
+Reinicie o n8n para que o node Scanify apareça na lista.
 
-## License
+---
 
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
+## Operações
+
+Atualmente, este node suporta:
+
+---
+
+## Nodes disponíveis
+
+| Node             | Tipo     | Descrição                                                              |
+|------------------|----------|------------------------------------------------------------------------|
+| `Scanify`        | Ação     | Envia documentos (PDF, PNG, JPG) para a API Scanify                   |
+| `Scanify Trigger`| Trigger  | Dispara automaticamente quando a Scanify envia o resultado via callback |
+
+---
+
+## Credenciais
+
+Este pacote utiliza autenticação via **API Key**.
+
+1. Acesse [https://scanify.com.br](https://scanify.com.br) e gere sua chave de API.
+2. No n8n, vá em **Credenciais > Scanify API** e adicione sua chave.
+3. O node `Scanify` utilizará essa credencial automaticamente
+
+---
+
+## Compatibilidade
+
+- Requer **n8n v1.18.0** ou superior (usa `NodeConnectionType`)
+- Testado nas versões:
+  - n8n `1.18.0`
+  - n8n `1.22.1`
+
+Sem problemas conhecidos.
+
+---
+
+## Como usar
+
+### 📤 Envio com `Scanify`
+
+1. Use o node **Read Binary File** para carregar um arquivo local.
+2. Conecte ao node **Scanify**.
+3. Preencha os campos:
+   - `documentType`: Ex: `"NFE"`, `"BOLETO"`
+   - `callbackUrl`: Defina como o endpoint gerado pelo `Scanify Trigger`
+4. Execute o fluxo.
+
+#### Pré-requisitos
+
+O node espera um **arquivo binário** como entrada. Você pode obtê-lo usando:
+- `Read Binary File`
+- `HTTP Request`
+- Qualquer outro node que forneça binário
+
+Campos obrigatórios:
+- `documentType`: tipo do documento (ex: `"BOLETO"`, `"NFE"`)
+- `callbackUrl`: URL que receberá o resultado do OCR
+
+Campos opcionais:
+- `referenceId`: ID de referência do seu sistema
+- `metadata`: objeto JSON com dados adicionais (ex: `{ "clienteId": "123" }`)
+
+### 📥 Recebimento com `Scanify Trigger`
+
+1. Crie um novo workflow.
+2. Adicione o node **Scanify Trigger**.
+3. Ative o workflow.
+4. O n8n exibirá uma URL como:
+
+```
+https://n8n.seudominio.com/webhook/scanify-document
+```
+
+5. Use essa URL no campo `callbackUrl` do node `Scanify`.
+
+Assim que a Scanify concluir o processamento do documento, ela enviará os dados diretamente para esse trigger.
+
+### Exemplo de uso
+
+1. Adicione o node **Read Binary File** para carregar um arquivo local
+2. Conecte ao node **Scanify**
+3. Preencha os campos obrigatórios
+4. Execute o fluxo
+5. O processamento será feito em background e a resposta será enviada para a `callbackUrl` informada
+
+---
+
+## Recursos
+
+- [Documentação do n8n para nodes da comunidade](https://docs.n8n.io/integrations/#community-nodes)
+- [Documentação oficial do Scanify](https://docs.scanify.com.br/)
+- [Blog do Scanify](https://scanify.com.br/blog)
+
+---
+
+## Histórico de versões
+
+| Versão | Descrição |
+|--------|-----------|
+| 1.0.0  | Versão inicial com envio e trigger para recebimento de resultados |
