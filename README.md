@@ -138,3 +138,12 @@ Assim que a Scanify concluir o processamento do documento, ela enviará os dados
 | Versão | Descrição |
 |--------|-----------|
 | 1.0.0  | Versão inicial com envio e trigger para recebimento de resultados |
+
+## Releases
+
+Este projeto utiliza releases automatizadas através do semantic-release. As versões são geradas automaticamente baseadas nas mensagens de commit seguindo o padrão convencional:
+
+- `feat:` - Nova funcionalidade (minor version)
+- `fix:` - Correção de bug (patch version)
+- `feat!:` ou `BREAKING CHANGE:` - Mudança que quebra compatibilidade (major version)
+- `chore:`, `docs:`, `style:`, `refactor:`, `perf:`, `test:` - Outros tipos de mudanças
