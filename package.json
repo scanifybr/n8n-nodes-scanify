@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-scanify",
   "version": "1.0.0",
-  "description": "",
+  "description": "Este é um pacote de nodes da comunidade n8n que permite integrar a API do Scanify diretamente nos fluxos de automação.",
   "keywords": [
     "n8n-community-node-package"
   ],
